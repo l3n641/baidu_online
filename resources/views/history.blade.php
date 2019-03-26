@@ -5,6 +5,7 @@
 
         <thead>
         <tr>
+            <th>时间</th>
             <th>host</th>
             <th>收录数量</th>
             <th>收录记录</th>
@@ -14,6 +15,7 @@
         <tbody>
         @foreach ($hosts as $host)
             <tr>
+                <td>{{$host->created_at}}</td>
                 <td>{{$host->host}}</td>
                 <td>{{$host->quantity}}</td>
                 <td><a href="/result/{{$host->host_id}}">查看</a></td>
