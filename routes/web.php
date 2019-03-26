@@ -11,6 +11,9 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::any('/','SearchController@index');
+Route::any('/history','SearchController@history');
+Route::any('/test','SearchController@test');
+Route::get('/result/{id}','SearchController@result');
+Route::get('/rank/{id}','SearchController@rank');
+
