@@ -14,10 +14,15 @@ use App\Services\Spider;
 use  App\Jobs\TargetSite;
 
 
+/**
+ * Class SearchBaidu 百度搜索site:
+ * @package App\Jobs
+ */
 class SearchBaidu implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $site, $id;
+    const SEARCH_COMPLETE = 0;
 
     /**
      * Create a new job instance.
@@ -38,6 +43,8 @@ class SearchBaidu implements ShouldQueue
     public function handle()
     {
         $nextPage = 1;
+        Redis::set($this->id . "_task_status", $nextPage);
+
         do {
             $spider = new Spider('site:' . $this->site);
             $baiduContent = $spider->getContent($nextPage);
@@ -45,6 +52,7 @@ class SearchBaidu implements ShouldQueue
             $urls = $baiduContent->getUrls(true);
             TargetSite::dispatch($urls, $this->id);
         } while ($nextPage);
+        Redis::set($this->id . "_task_status", self::SEARCH_COMPLETE);
 
     }
 

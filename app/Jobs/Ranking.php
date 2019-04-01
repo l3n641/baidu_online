@@ -13,11 +13,15 @@ use App\Services\Spider;
 use App\Models\HostRank;
 use App\Models\Host;
 
-
+/**
+ * Class Ranking 关键词排名
+ * @package App\Jobs
+ */
 class Ranking implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $keyword, $hostId;
+    const FIRST_PAGE = 1;
 
     /**
      * Create a new job instance.
@@ -45,10 +49,10 @@ class Ranking implements ShouldQueue
 
     protected function getUrlsByKeyword($keyword)
     {
-        $urls = $this->getKeyword($keyword);
+        $urls = $this->getKeywordInCache($keyword);
         if (empty($urls)) {
             $spider = new Spider($keyword);
-            $content = $spider->getContent(1);
+            $content = $spider->getContent(self::FIRST_PAGE);
             $urls = $content->getUrls(true);
             $this->saveKeyword($keyword, $urls);
         }
@@ -66,7 +70,7 @@ class Ranking implements ShouldQueue
 
     }
 
-    protected function getKeyword($keyword)
+    protected function getKeywordInCache($keyword)
     {
         $hash = md5($keyword);
         $urls = Redis::get($hash);
