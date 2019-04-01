@@ -11,6 +11,7 @@
     <script>
         var host_id = "{{$host_id}}";
         var last = 1;
+        var table = {};
 
         function ajax_get(url, sucsess_fun, data={}) {
             $.ajax({
@@ -37,13 +38,18 @@
                 if (response.status == 0) {
                     $("#load_img").remove()
                     //$("#loading").fadeOut()
+                    table.bootstrapTable('refresh');
                     $("#status").text('查询完成');
+                    clearInterval(interval_handle);
 
                 } else {
                     var text = "正在查询第" + response.status + "页..."
                     $("#status").text(text);
-                    update_table();
+
                 }
+                update_table();
+
+
             }
             ajax_get(url, func, {last: last});
 
@@ -53,7 +59,7 @@
         function init_table() {
             var func = function (response) {
                 last = response.last_id;
-                $('#table').bootstrapTable({
+                table = $('#table').bootstrapTable({
                     columns: [{
                         field: 'id',
                         title: ' ID'
@@ -94,7 +100,7 @@
 
         $(document).ready(function () {
                 init_table()
-                setInterval(consult_status, 10000)
+                interval_handle = setInterval(consult_status, 30000)
             }
         )
 
