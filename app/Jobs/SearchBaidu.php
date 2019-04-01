@@ -43,9 +43,9 @@ class SearchBaidu implements ShouldQueue
     public function handle()
     {
         $nextPage = 1;
-        Redis::set($this->id . "_task_status", $nextPage);
 
         do {
+            Redis::set($this->id . "_task_status", $nextPage);
             $spider = new Spider('site:' . $this->site);
             $baiduContent = $spider->getContent($nextPage);
             $nextPage = $baiduContent->hasNextPage();
