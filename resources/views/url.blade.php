@@ -77,7 +77,7 @@
                 })
             }
             load(func);
-            $('.no-records-ffsfs').remove()
+            $('.no-records-found').remove()
         }
 
         function update_table() {
