@@ -15,5 +15,7 @@ Route::any('/','SearchController@index');
 Route::any('/history','SearchController@history');
 Route::any('/test','SearchController@test');
 Route::get('/result/{id}','SearchController@result');
+Route::get('/url/{id}','SearchController@url');
 Route::get('/rank/{id}','SearchController@rank');
+Route::get('/status/{id}','SearchController@status');
 
