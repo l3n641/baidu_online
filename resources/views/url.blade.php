@@ -33,6 +33,7 @@
         }
 
         function consult_status() {
+            $('.no-records-found').remove()
             var url = '/status/' + host_id;
             var func = function (response) {
                 if (response.status == 0) {
