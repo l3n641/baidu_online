@@ -1,6 +1,6 @@
 @extends('common')
 @section('sidebar')
-    <div>记录总数概览:{{$host->quantity}} <a href="/rank/{{$host->host_id}}">关键词排名</a></div>
+    <div>记录总数概览:{{$host->amount_record}} <a href="/rank/{{$host->host_id}}">关键词排名</a></div>
 
     <table id="table"></table>
     <div id="loading">
