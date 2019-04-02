@@ -79,7 +79,7 @@
 
         $(document).ready(function () {
                 init_table()
-                interval_handle = setInterval(consult_status, 3000)
+                interval_handle = setInterval(consult_status, 60000)
             }
         )
 
