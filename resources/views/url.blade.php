@@ -62,8 +62,10 @@
                 last = response.last_id;
                 table = $('#table').bootstrapTable({
                     columns: [{
-                        field: 'id',
-                        title: ' ID'
+                        title: 'id',
+                        formatter: function (value, row, index) {
+                            return index + 1;
+                        }
                     }, {
                         field: 'url',
                         title: 'url'
