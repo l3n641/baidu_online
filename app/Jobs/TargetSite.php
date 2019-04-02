@@ -50,10 +50,10 @@ class TargetSite implements ShouldQueue
             $keywords = $ql->find('meta[name="keywords"]')->attrs('content')->all();
             $keywords = empty($keywords) ? '' : $keywords[0];
             $responseInfo = $response['info'];
-            $this->saveUrl($responseInfo['url'], $responseInfo['http_code'], $keywords);
-            if ($responseInfo['http_code'] == 200 && $keywords) {
-                $firstKeyword=$this->getFirstKeyword($keywords);
-                Ranking::dispatch($firstKeyword,$this->hostId);
+            $status = $this->saveUrl($responseInfo['url'], $responseInfo['http_code'], $keywords);
+            if ($status && $responseInfo['http_code'] == 200 && $keywords) {
+                $firstKeyword = $this->getFirstKeyword($keywords);
+                Ranking::dispatch($firstKeyword, $this->hostId);
             }
         })->error(function ($errorInfo, CurlMulti $curl) {
             //出现错误处理
@@ -75,12 +75,18 @@ class TargetSite implements ShouldQueue
 
     protected function saveUrl($link, $httpCode, $keyword)
     {
+        $data = Url::where("host_id", $this->hostId)->where('url', $link)->first();
+        if ($data) {
+            return false;
+        }
         $url = new Url();
         $url->host_id = $this->hostId;
         $url->url = $link;
         $url->http_code = $httpCode;
         $url->keyword = $keyword;
         $url->save();
+
+        return true;
 
     }
 

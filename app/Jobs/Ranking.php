@@ -88,15 +88,24 @@ class Ranking implements ShouldQueue
         foreach ($urls as $url) {
             $rank++;
             if (strpos($url['link'], $host->host)) {
-                $hostRank = new HostRank();
-                $hostRank->url = $url['link'];
-                $hostRank->host_id = $this->hostId;
-                $hostRank->rank = $rank;
-                $hostRank->keyword = $keyword;
-                $hostRank->save();
+                $this->save($url, $rank, $keyword);
             }
         }
 
+    }
+
+    protected function save($url, $rank, $keyword)
+    {
+        $data = HostRank::where('url', $url['link'])->where('host_id', $this->hostId)->first();
+        if ($data) {
+            return false;
+        }
+        $hostRank = new HostRank();
+        $hostRank->url = $url['link'];
+        $hostRank->host_id = $this->hostId;
+        $hostRank->rank = $rank;
+        $hostRank->keyword = $keyword;
+        $hostRank->save();
     }
 
 }
