@@ -25,6 +25,8 @@
         @endforeach
         </tbody>
     </table>
+    {{$hosts->links()}}
+
 @endsection
 
 

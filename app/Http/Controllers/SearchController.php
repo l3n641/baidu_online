@@ -53,7 +53,7 @@ class SearchController extends Controller
      */
     public function history()
     {
-        $hosts = Host::simplePaginate(20);
+        $hosts = Host::orderBy('created_at', 'desc')->simplePaginate(50);
         return view('history', ['hosts' => $hosts]);
     }
 
