@@ -1,6 +1,6 @@
 @extends('common')
 @section('sidebar')
-    <div>记录总数概览:{{$host->amount_record}} <a href="/rank/{{$host->host_id}}">关键词排名</a></div>
+    <div><a href="/rank/{{$host->host_id}}">关键词排名</a></div>
 
     <table id="table"></table>
     <div id="loading">
@@ -27,10 +27,6 @@
             });
         }
 
-        function load(sucsess_fun) {
-            var url = '/url/' + host_id;
-            ajax_get(url, sucsess_fun, {last: last});
-        }
 
         function consult_status() {
             $('.no-records-found').remove()
@@ -38,8 +34,6 @@
             var func = function (response) {
                 if (response.status == 0) {
                     $("#load_img").remove()
-                    //$("#loading").fadeOut()
-                    table.bootstrapTable('refresh');
                     $("#status").text('查询完成');
                     clearInterval(interval_handle);
 
@@ -48,62 +42,44 @@
                     $("#status").text(text);
 
                 }
-                update_table();
+                table.bootstrapTable('refresh');
 
 
             }
-            ajax_get(url, func, {last: last});
+            ajax_get(url, func);
 
 
         }
 
         function init_table() {
-            var func = function (response) {
-                last = response.last_id;
-                table = $('#table').bootstrapTable({
-                    columns: [{
-                        title: 'id',
-                        formatter: function (value, row, index) {
-                            return index + 1;
-                        }
-                    }, {
-                        field: 'url',
-                        title: 'url'
-                    }, {
-                        field: 'keyword',
-                        title: '关键词'
-                    }, {
-                        field: 'http_code',
-                        title: 'http_code'
-                    }],
-                    data: JSON.parse(response.urls)
-                })
-            }
-            load(func);
-            $('.no-records-found').remove()
-        }
+            var url = '/url/' + host_id;
 
-        function update_table() {
-            func = function (response) {
-                last = response.last_id;
-                urls = JSON.parse(response.urls);
-                for (i = 0; i < urls.length; i++) {
-                    append_table_row(urls[i]);
-                }
-
-            }
-            load(func);
-        }
-
-        function append_table_row(data) {
-            var templete = "<tr><td>" + data.id + "</td><td>" + data.url + "</td><td>" + data.keyword + "</td><td>" + data.http_code + "</td></tr>";
-            $("#table").append(templete);
+            table = $('#table').bootstrapTable({
+                method: "get",
+                url: url,
+                pagination: false,
+                columns: [{
+                    title: 'id',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                }, {
+                    field: 'url',
+                    title: 'url'
+                }, {
+                    field: 'keyword',
+                    title: '关键词'
+                }, {
+                    field: 'http_code',
+                    title: 'http_code'
+                }]
+            })
         }
 
 
         $(document).ready(function () {
                 init_table()
-                interval_handle = setInterval(consult_status, 30000)
+                interval_handle = setInterval(consult_status, 3000)
             }
         )
 
