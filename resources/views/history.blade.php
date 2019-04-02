@@ -17,7 +17,7 @@
             <tr>
                 <td>{{$host->created_at}}</td>
                 <td>{{$host->host}}</td>
-                <td>{{$host->quantity}}</td>
+                <td>{{$host->amount_record}}</td>
                 <td><a href="/result/{{$host->host_id}}">查看</a></td>
                 <td><a href="/rank/{{$host->host_id}}">查看</a></td>
 
