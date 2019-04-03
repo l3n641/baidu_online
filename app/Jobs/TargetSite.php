@@ -12,7 +12,10 @@ use QL\QueryList;
 use QL\Ext\CurlMulti;
 use App\Models\Url;
 
-
+/**
+ * Class TargetSite 保存百度收录的页面
+ * @package App\Jobs
+ */
 class TargetSite implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
