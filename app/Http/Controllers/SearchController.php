@@ -53,7 +53,7 @@ class SearchController extends Controller
      */
     public function history()
     {
-        $hosts = Host::simplePaginate(20);
+        $hosts = Host::orderBy('created_at', 'desc')->simplePaginate(50);
         return view('history', ['hosts' => $hosts]);
     }
 
@@ -78,10 +78,7 @@ class SearchController extends Controller
     {
         $last_id = $request->input('last', 0);
         $urls = Url::where('host_id', $id)->where('id', '>', $last_id)->get();
-        if ($urls->isNotEmpty()) {
-            $last_id = $urls->last()->id;
-        }
-        return ['last_id' => $last_id, 'urls' => $urls->tojson()];
+        return $urls->tojson();
     }
 
     public function status($id)

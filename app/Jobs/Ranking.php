@@ -96,7 +96,7 @@ class Ranking implements ShouldQueue
 
     protected function save($url, $rank, $keyword)
     {
-        $data = HostRank::where('url', $url['link'])->where('host_id', $this->hostId)->first();
+        $data = HostRank::where('url', $url['link'])->where('host_id', $this->hostId)->where('keyword', $keyword)->first();
         if ($data) {
             return false;
         }
