@@ -11,10 +11,12 @@ namespace App\Services;
 use QL\QueryList;
 use App\Services\BaiduContent;
 
+/**
+ * Class Spider 获取百度搜索内容
+ * @package App\Services
+ */
 class Spider
 {
-
-
     protected $ql;
     protected $keyword;
     protected $pageNumber = 10;
@@ -22,7 +24,7 @@ class Spider
     protected $content = '';
     const API = 'https://www.baidu.com/s';
     const RULES = [
-      #  'target_url' => ['.f13>a', 'text'],
+        #  'target_url' => ['.f13>a', 'text'],
         'link' => ['h3>a', 'href'],
     ];
     const RANGE = '.result';
@@ -42,7 +44,6 @@ class Spider
         $this->httpOpt = $httpOpt;
         return $this;
     }
-
 
 
     public function getCount()

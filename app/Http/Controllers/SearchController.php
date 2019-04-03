@@ -42,6 +42,10 @@ class SearchController extends Controller
 
     }
 
+    /**查看收录的地址前端页面
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function result($id)
     {
         $host = Host::where('host_id', $id)->first();

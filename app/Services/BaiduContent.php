@@ -12,7 +12,10 @@ namespace App\Services;
 use Mockery\Exception;
 use  GuzzleHttp\Client;
 
-
+/**
+ * Class BaiduContent 解析百度搜索结果
+ * @package App\Services
+ */
 class BaiduContent
 {
     protected $currentPage;
