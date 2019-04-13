@@ -12,4 +12,9 @@ class Host extends Model
         return Url::where('host_id', $this->host_id)->count();
     }
 
+    public function getRankRecordAttribute()
+    {
+        return HostRank::where('host_id', $this->host_id)->count();
+    }
+
 }
