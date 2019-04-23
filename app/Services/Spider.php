@@ -74,5 +74,23 @@ class Spider
         return $content;
     }
 
+    public static function getSizeQuantity($host_name)
+    {
+        $ql = QueryList::get('http://www.baidu.com/s?wd=site:' . $host_name);
+        $quantity = $ql->find('.op_site_domain_right b')->text();
+        if (empty($quantity)) {
+
+            $quantity = $ql->find('.c-border b')->text();
+            if (preg_match('|[0-9]+|', $quantity, $matches)) {
+                $quantity = $matches[0];
+            } else {
+                $quantity = 0;
+            }
+        }
+
+        return $quantity;
+
+    }
+
 
 }
