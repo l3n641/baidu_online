@@ -65,7 +65,7 @@ class TargetSite implements ShouldQueue
 
             $responseInfo = $response['info'];
             $status = $this->saveUrl($responseInfo['url'], $responseInfo['http_code'], $data);
-            if ($status && $responseInfo['http_code'] == 200 && $data['keyword']) {
+            if ($status && $responseInfo['http_code'] == 200 && !empty($data['keyword'])) {
                 $firstKeyword = $this->getFirstKeyword($data['keyword']);
                 Ranking::dispatch($firstKeyword, $this->hostId);
             }
@@ -96,9 +96,9 @@ class TargetSite implements ShouldQueue
         $url->host_id = $this->hostId;
         $url->url = $link;
         $url->http_code = $httpCode;
-        $url->keyword = $site_data['keyword'];
-        $url->title = $site_data['title'];
-        $url->description = $site_data['description'];
+        $url->keyword = $site_data['keyword'] ?? '';
+        $url->title = $site_data['title'] ?? "";
+        $url->description = $site_data['description'] ?? "";
         $url->rank = self::DEFAULT_RANK;
         $url->save();
 
