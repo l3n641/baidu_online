@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HostRank;
 use Illuminate\Http\Request;
 use App\Jobs\SearchBaidu;
 use Illuminate\Support\Facades\Redis;
 use App\Models\Host;
 use App\Models\Url;
+use App\Models\KeyRank;
+use App\Models\HostRank;
+
 use App\Services\Spider;
 
 class SearchController extends Controller
@@ -76,6 +78,17 @@ class SearchController extends Controller
         $key = $id . "_task_status";
         $status = Redis::get($key) ?? 1;
         return ['status' => $status];
+
+    }
+
+    /**关键词排名
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function keyword($id)
+    {
+        $hosts = KeyRank::where('host_id', $id)->get();
+        return view('keyword', ['hosts' => $hosts]);
 
     }
 
