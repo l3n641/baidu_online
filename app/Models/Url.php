@@ -27,7 +27,7 @@ class Url extends Model
      */
     public function getFirstKeywordAttribute()
     {
-        if ($this->keyword == '无关键字') {
+        if (empty($this->keyword) || $this->keyword == '无关键字') {
             return '无关键字';
         }
 
