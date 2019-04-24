@@ -54,9 +54,17 @@ class SearchController extends Controller
      * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function rank($id)
+    public function rank(Request $request, $id)
     {
-        $hostRank = HostRank::where('host_id', $id)->simplePaginate(50);
+
+        $keyword = $request->input('keyword');
+        if ($keyword) {
+            $hostRank = HostRank::where('host_id', $id)->where('keyword', $keyword)->simplePaginate(50);
+
+        } else {
+            $hostRank = HostRank::where('host_id', $id)->simplePaginate(50);
+
+        }
         return view('rank', ['ranks' => $hostRank]);
 
     }

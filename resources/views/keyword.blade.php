@@ -12,7 +12,7 @@
         @foreach ($hosts as $host)
             <tr>
                 <td>{{$host->keyword}}</td>
-                <td><a href="">{{$host->rank_amount}}</a></td>
+                <td><a href="{{ URL::action('SearchController@rank',['id'=>$host->host_id,'keyword'=>$host->keyword])}}">{{$host->rank_amount}}</a></td>
                 <td>{{$host->ranks}}</td>
             </tr>
         @endforeach
