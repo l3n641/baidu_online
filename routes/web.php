@@ -18,4 +18,5 @@ Route::get('/result/{id}','SearchController@result');
 Route::get('/url/{id}','SearchController@url');
 Route::get('/rank/{id}','SearchController@rank');
 Route::get('/status/{id}','SearchController@status');
+Route::get('/keyword/{id}','SearchController@keyword');
 

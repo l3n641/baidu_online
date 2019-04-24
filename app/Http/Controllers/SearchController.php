@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HostRank;
 use Illuminate\Http\Request;
 use App\Jobs\SearchBaidu;
 use Illuminate\Support\Facades\Redis;
-use QL\QueryList;
 use App\Models\Host;
 use App\Models\Url;
+use App\Models\KeyRank;
+use App\Models\HostRank;
+
+use App\Services\Spider;
 
 class SearchController extends Controller
 {
@@ -18,27 +20,22 @@ class SearchController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->isMethod('get')) {
-            return view('index');
-        }
-        $id = session_create_id();
         $site = $request->post('site');
         $host_name = filter_var($site, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
-
-        if (!$host_name) {
-            return view('index');
-
+        if ($site && $host_name) {
+            $id = session_create_id();
+            $quantity = Spider::getSizeQuantity($host_name);
+            $host = new Host();
+            $host->host = $host_name;
+            $host->host_id = $id;
+            $host->quantity = $quantity;
+            $host->save();
+            SearchBaidu::dispatch($id, $host_name);
+            return redirect()->action('SearchController@result', ['id' => $id]);
+        } else {
+            $hosts = Host::orderBy('created_at', 'desc')->simplePaginate(50);
+            return view('index', ['hosts' => $hosts]);
         }
-        SearchBaidu::dispatch($id, $host_name);
-        $ql = QueryList::get('http://www.baidu.com/s?wd=site:' . $host_name);
-        $quantity = $ql->find('.op_site_domain_right b')->text();
-        $host = new Host();
-        $host->host = $host_name;
-        $host->host_id = $id;
-        $host->quantity = $quantity;
-        $host->save();
-        return redirect()->action('SearchController@result', ['id' => $id]);
-
 
     }
 
@@ -52,23 +49,22 @@ class SearchController extends Controller
         return view('url', ['host' => $host, 'host_id' => $id]);
     }
 
-    /**历史记录
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function history()
-    {
-        $hosts = Host::orderBy('created_at', 'desc')->simplePaginate(50);
-        return view('history', ['hosts' => $hosts]);
-    }
-
 
     /** 查询关键字排名
      * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function rank($id)
+    public function rank(Request $request, $id)
     {
-        $hostRank = HostRank::where('host_id', $id)->simplePaginate(50);
+
+        $keyword = $request->input('keyword');
+        if ($keyword) {
+            $hostRank = HostRank::where('host_id', $id)->where('keyword', $keyword)->simplePaginate(50);
+
+        } else {
+            $hostRank = HostRank::where('host_id', $id)->simplePaginate(50);
+
+        }
         return view('rank', ['ranks' => $hostRank]);
 
     }
@@ -90,6 +86,17 @@ class SearchController extends Controller
         $key = $id . "_task_status";
         $status = Redis::get($key) ?? 1;
         return ['status' => $status];
+
+    }
+
+    /**关键词排名
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function keyword($id)
+    {
+        $hosts = KeyRank::where('host_id', $id)->get();
+        return view('keyword', ['hosts' => $hosts]);
 
     }
 

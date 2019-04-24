@@ -1,6 +1,6 @@
 @extends('common')
 @section('sidebar')
-    <div><a href="/rank/{{$host->host_id}}">关键词排名</a></div>
+    <div><a href="/keyword/{{$host->host_id}}">关键词排名</a></div>
 
     <table id="table"></table>
     <div id="loading">
@@ -57,6 +57,7 @@
             table = $('#table').bootstrapTable({
                 method: "get",
                 url: url,
+                search: true,
                 pagination: false,
                 columns: [{
                     title: 'id',
@@ -72,14 +73,35 @@
                 }, {
                     field: 'http_code',
                     title: 'http_code'
-                }]
+                },
+                    {
+                        field: 'title',
+                        title: '标题'
+                    },
+
+                    {
+                        field: 'description',
+                        title: '描述'
+                    },
+
+                    {
+                        field: 'first_keyword',
+                        title: '第一个关键词'
+                    },
+
+                    {
+                        field: 'rank',
+                        title: '排名'
+                    },
+
+                ]
             })
         }
 
 
         $(document).ready(function () {
                 init_table()
-                interval_handle = setInterval(consult_status, 60000)
+                interval_handle = setInterval(consult_status, 2000)
             }
         )
 
