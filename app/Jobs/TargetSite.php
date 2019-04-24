@@ -28,10 +28,11 @@ class TargetSite implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($urls, $hostId)
+    public function __construct($urls, $hostId, $currentPage = 1)
     {
         $this->urls = $urls;
         $this->hostId = $hostId;
+        $this->currentPage = $currentPage;
     }
 
     /**
@@ -76,6 +77,7 @@ class TargetSite implements ShouldQueue
             //出现错误处理
         })->start($this->getCurlOptions());
 
+        Redis::sadd($this->id . "complete_page_list", $this->currentPage);//redis 记录已经完成搜索页面页号
 
     }
 

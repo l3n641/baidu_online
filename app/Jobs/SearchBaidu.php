@@ -22,7 +22,8 @@ class SearchBaidu implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $site, $id;
-    const SEARCH_COMPLETE = 0;
+    const SEARCH_COMPLETE = 1;
+    const SEARCH_PROCESSING = 0;
 
     /**
      * Create a new job instance.
@@ -43,16 +44,17 @@ class SearchBaidu implements ShouldQueue
     public function handle()
     {
         $nextPage = 1;
-
+        Redis::set($this->id . "_task_status", self::SEARCH_PROCESSING);//redis记录任务开始
         do {
-            Redis::set($this->id . "_task_status", $nextPage);
+            $currentPage = $nextPage;
+            Redis::sadd($this->id . "will_page_list", $nextPage);//redis 记录将要搜索页面页号
             $spider = new Spider('site:' . $this->site);
             $baiduContent = $spider->getContent($nextPage);
             $nextPage = $baiduContent->hasNextPage();
             $urls = $baiduContent->getUrls(true);
-            TargetSite::dispatch($urls, $this->id);
+            TargetSite::dispatch($urls, $this->id,$currentPage);
         } while ($nextPage);
-        Redis::set($this->id . "_task_status", self::SEARCH_COMPLETE);
+        Redis::set($this->id . "_task_status", self::SEARCH_COMPLETE);//redis记录任务结束
 
     }
 
