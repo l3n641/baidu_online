@@ -25,7 +25,7 @@ class Task
      * @param $host_id
      * @return int|mixed
      */
-    public static function getExcute_status($host_id)
+    public static function getExcuteStatus($host_id)
     {
 
         $status = self::getSearchBaiduDispatchStatus($host_id);
