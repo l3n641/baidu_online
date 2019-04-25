@@ -142,11 +142,15 @@ class Ranking implements ShouldQueue
     }
 
     /**保存数据到key_rank 表
-     * @param $rankAmount int 统计上百度的次数
+     * @param $rankAmount int 统计上百度首页的次数
      * @param $rankList array 排名列表
      */
     protected function saveKeyRank($rankAmount, $rankList)
     {
+        $data = KeyRank::where('host_id', $this->hostId)->where('keyword', $this->keyword)->first();
+        if ($data) {
+            return false;
+        }
         $rankList = json_encode($rankList);
         $keyRank = new KeyRank();
         $keyRank->host_id = $this->hostId;
