@@ -10,6 +10,9 @@ class Host extends Model
     /**获取收录记录总数
      * @return mixed
      */
+    const SEARCH_COMPLETE = 2;
+    const SEARCH_PROCESSING = 1;
+
     public function getAmountRecordAttribute()
     {
         return Url::where('host_id', $this->host_id)->count();
