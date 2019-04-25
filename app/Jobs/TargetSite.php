@@ -7,10 +7,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Redis;
+use Mockery\Exception;
 use QL\QueryList;
 use QL\Ext\CurlMulti;
 use App\Models\Url;
+use App\Services\Task;
 
 /**
  * Class TargetSite 保存百度收录的页面
@@ -21,7 +22,7 @@ class TargetSite implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     const DEFAULT_RANK = 100; //默认排名
 
-    protected $urls, $hostId;
+    protected $urls, $hostId, $currentPage;
 
     /**
      * Create a new job instance.
@@ -33,6 +34,7 @@ class TargetSite implements ShouldQueue
         $this->urls = $urls;
         $this->hostId = $hostId;
         $this->currentPage = $currentPage;
+
     }
 
     /**
@@ -57,6 +59,7 @@ class TargetSite implements ShouldQueue
             'title' => ['title', 'text'],
         ];
 
+
         $ql->curlMulti($url_list)->success(function (QueryList $ql, CurlMulti $curl, $response) use ($rule) {
             $datas = $ql->rules($rule)->query()->getData()->all();
             $empty_data = ['keyword' => '',
@@ -74,10 +77,9 @@ class TargetSite implements ShouldQueue
             // 释放资源
             $ql->destruct();
         })->error(function ($errorInfo, CurlMulti $curl) {
-            //出现错误处理
         })->start($this->getCurlOptions());
 
-        Redis::sadd($this->id . "complete_page_list", $this->currentPage);//redis 记录已经完成搜索页面页号
+        Task::setCompletePage($this->hostId, $this->currentPage);//redis 记录已经完成搜索页面页号
 
     }
 
@@ -139,7 +141,10 @@ class TargetSite implements ShouldQueue
             ],          // 全局CURLOPT_*
 
             // 缓存选项很容易被理解，缓存使用url来识别。如果使用缓存类库不会访问网络而是直接返回缓存。
-            'cache' => ['enable' => false, 'compress' => false, 'dir' => null, 'expire' => 86400, 'verifyPost' => false]
+            'cache' => ['enable' => false, 'compress' => false, 'dir' => null, 'expire' => 86400, 'verifyPost' => false],
+            "onFail" => function ($errorInfo) {
+                //出现错误处理,这里先用默认的处理方案.我之后考虑一下其他解决方案
+            }
         ];
 
         return $curl_options;

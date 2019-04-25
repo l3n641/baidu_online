@@ -75,7 +75,7 @@ class Ranking implements ShouldQueue
     {
         $hash = md5($keyword);
         $urls = serialize($urls);
-        Redis::set($hash, $urls);
+        Redis::set('keyword_' . $hash, $urls);
         Redis::expire($hash, $expire);
 
     }
@@ -87,7 +87,7 @@ class Ranking implements ShouldQueue
     protected function getKeywordInCache($keyword)
     {
         $hash = md5($keyword);
-        $urls = Redis::get($hash);
+        $urls = Redis::get('keyword_' . $hash);
         if ($urls) {
             $urls = unserialize($urls);
         }
