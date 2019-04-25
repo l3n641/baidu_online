@@ -32,7 +32,7 @@
             $('.no-records-found').remove()
             var url = '/status/' + host_id;
             var func = function (response) {
-                if (response.status == 0) {
+                if (response.status == 1) {
                     $("#load_img").remove()
                     $("#status").text('查询完成');
                     clearInterval(interval_handle);

@@ -11,9 +11,16 @@ use App\Models\KeyRank;
 use App\Models\HostRank;
 
 use App\Services\Spider;
+use QL\QueryList;
+use QL\Ext\CurlMulti;
 
 class SearchController extends Controller
 {
+
+
+    const SEARCH_COMPLETE = 1;
+    const SEARCH_PROCESSING = 0;
+
     /**查询首页
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
@@ -83,8 +90,16 @@ class SearchController extends Controller
 
     public function status($id)
     {
-        $key = $id . "_task_status";
-        $status = Redis::get($key) ?? 1;
+        $status = Redis::get($id . "_task_status");
+        $willPageList = Redis::SMEMBERS($id . "will_page_list");
+        $completePageList = Redis::SMEMBERS($id . "complete_page_list");
+        if ($status && empty(array_diff($willPageList, $completePageList))) {
+            $status = self::SEARCH_COMPLETE;
+        } else {
+            $status = self::SEARCH_PROCESSING;
+
+        }
+
         return ['status' => $status];
 
     }
@@ -99,6 +114,7 @@ class SearchController extends Controller
         return view('keyword', ['hosts' => $hosts]);
 
     }
+
 
 
 }
