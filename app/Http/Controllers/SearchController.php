@@ -10,7 +10,7 @@ use App\Models\Url;
 use App\Models\KeyRank;
 use App\Models\HostRank;
 
-use App\Services\Spider;
+use App\Services\HostService;
 use App\Services\Task;
 
 class SearchController extends Controller
@@ -28,18 +28,13 @@ class SearchController extends Controller
     {
         $site = $request->post('site');
         $host_name = filter_var($site, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
+        $host_srv = new HostService();
         if ($site && $host_name) {
-            $id = session_create_id();
-            $quantity = Spider::getSizeQuantity($host_name);
-            $host = new Host();
-            $host->host = $host_name;
-            $host->host_id = $id;
-            $host->quantity = $quantity;
-            $host->save();
-            SearchBaidu::dispatch($id, $host_name);
-            return redirect()->action('SearchController@result', ['id' => $id]);
+            $host_id = $host_srv->saveHost($host_name);
+            SearchBaidu::dispatch($host_id, $host_name);
+            return redirect()->action('SearchController@result', ['id' => $host_id]);
         } else {
-            $hosts = Host::orderBy('created_at', 'desc')->simplePaginate(50);
+            $hosts = $host_srv->getList();
             return view('index', ['hosts' => $hosts]);
         }
 
