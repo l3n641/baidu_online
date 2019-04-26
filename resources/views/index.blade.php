@@ -34,7 +34,7 @@
                 <td>{{$host->host}}</td>
                 <td>{{$host->quantity}}</td>
                 <td><a href="/result/{{$host->host_id}}">{{$host->amount_record}}</a></td>
-                <td><a href="/rank/{{$host->host_id}}">{{$host->rank_record}}</a></td>
+                <td><a href="/keyword/{{$host->host_id}}">{{$host->rank_record}}</a></td>
                 <td>{{$host->zt}}</td>
 
             </tr>
