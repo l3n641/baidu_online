@@ -61,7 +61,14 @@ class TargetSite implements ShouldQueue
 
 
         $ql->curlMulti($url_list)->success(function (QueryList $ql, CurlMulti $curl, $response) use ($rule) {
-            $datas = $ql->rules($rule)->query()->getData()->all();
+            $datas = $ql->rules($rule)->query()->getData(function ($item) {
+
+                $item['keyword'] = isset($item['keyword']) ? mb_convert_encoding($item['keyword'], 'utf-8', 'gb2312,utf-8') : "";
+                $item['description'] = isset($item['description']) ? mb_convert_encoding($item['description'], 'utf-8', 'gb2312,utf-8') : "";
+                $item['title'] = isset($item['title']) ? mb_convert_encoding($item['title'], 'utf-8', 'gb2312,utf-8') : "";
+                return $item;
+
+            })->all();
             $empty_data = ['keyword' => '',
                 'description' => '',
                 'title' => ''];
