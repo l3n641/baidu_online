@@ -40,9 +40,9 @@
                 } else {
                     var text = "正在查询..."
                     $("#status").text(text);
+                    table.bootstrapTable('refresh');
 
                 }
-                table.bootstrapTable('refresh');
 
 
             }
