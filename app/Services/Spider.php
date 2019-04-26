@@ -26,6 +26,7 @@ class Spider
     const RULES = [
         #  'target_url' => ['.f13>a', 'text'],
         'link' => ['h3>a', 'href'],
+        'snapshot' => ['a.m', 'href'],
     ];
     const RANGE = '.result';
 
