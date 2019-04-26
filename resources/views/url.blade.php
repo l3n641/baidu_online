@@ -2,7 +2,7 @@
 @section('sidebar')
     <div><a href="/keyword/{{$host->host_id}}">关键词排名</a></div>
 
-    <table id="table"></table>
+    <table id="table" style="word-wrap:break-all;"></table>
     <div id="loading">
         <img id="load_img" src="/img/loading_red.gif">
         <span id="status">正在查询第1页...</span>
