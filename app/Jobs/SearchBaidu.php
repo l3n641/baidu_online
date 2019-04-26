@@ -52,7 +52,7 @@ class SearchBaidu implements ShouldQueue
             $spider = new Spider('site:' . $this->site);
             $baiduContent = $spider->getContent($nextPage);
             $nextPage = $baiduContent->hasNextPage();
-            $urls = $baiduContent->getUrls(true);
+            $urls = $baiduContent->getUrls(true, true);
             TargetSite::dispatch($urls, $this->id, $currentPage);
         } while ($nextPage);
         Task::setSearchBaiduComplete($this->id);//redis记录任务结束
