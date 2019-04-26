@@ -82,7 +82,7 @@ class Spider
         if (empty($quantity)) {
 
             $quantity = $ql->find('.c-border b')->text();
-            if (preg_match('|[0-9]+|', $quantity, $matches)) {
+            if (preg_match('/[\d,]+/', $quantity, $matches)) {
                 $quantity = $matches[0];
             } else {
                 $quantity = 0;
