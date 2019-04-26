@@ -32,7 +32,7 @@ class SearchController extends Controller
         if ($site && $host_name) {
             $host_id = $host_srv->saveHost($host_name);
             SearchBaidu::dispatch($host_id, $host_name);
-            return redirect()->action('SearchController@result', ['id' => $host_id]);
+            return redirect()->action('SearchController@index');
         } else {
             $hosts = $host_srv->getList();
             return view('index', ['hosts' => $hosts]);
