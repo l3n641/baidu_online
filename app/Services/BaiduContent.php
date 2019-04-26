@@ -9,8 +9,11 @@
 namespace App\Services;
 
 
-use Mockery\Exception;
 use  GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Mockery\Exception;
+use QL\QueryList;
+
 
 /**
  * Class BaiduContent 解析百度搜索结果
@@ -30,12 +33,40 @@ class BaiduContent
     }
 
 
-    public function getUrls($realURL = false)
+    public function getUrls($realURL = false, $snapshotDate = false)
     {
-        return $this->content->query()->getData(function ($item) use ($realURL) {
+        return $this->content->query()->getData(function ($item) use ($realURL, $snapshotDate) {
             $realURL && $item['link'] = $this->getRealURL($item['link']);
+            $snapshotDate && $item['snapshot_date'] = $this->getSnapshotDate($item['snapshot']);
             return $item;
         });
+    }
+
+    /**获取快照时间
+     * @param $url
+     * @return string
+     */
+    protected function getSnapshotDate($url)
+    {
+        try {
+            $client = new Client();
+            $response = $client->get($url, ['allow_redirects' => false]);
+            if ($response->getStatusCode() == 200) {
+                $html = $response->getBody();
+                $datas = QueryList::html($html)->find('#bd_snap_txt span')->eq(0)->texts();
+                $data = $datas->first();
+                if ($data && preg_match('|\d+年\d+月\d+日|', $data, $matches)) {
+                    return $matches[0];
+                } else {
+                    return '';
+                }
+
+            }
+        } catch (ClientException $exception) {
+            return '';
+        }
+
+
     }
 
 

@@ -38,7 +38,7 @@
                     clearInterval(interval_handle);
 
                 } else {
-                    var text = "正在查询第" + response.status + "页..."
+                    var text = "正在查询..."
                     $("#status").text(text);
 
                 }
@@ -92,6 +92,10 @@
                     {
                         field: 'rank',
                         title: '排名'
+                    },
+                    {
+                        field: 'snapshot_date',
+                        title: '快照时间'
                     },
 
                 ]

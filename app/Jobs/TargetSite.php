@@ -45,7 +45,7 @@ class TargetSite implements ShouldQueue
     public function handle()
     {
 
-        $url_list = [];
+        $url_list = [];//要查询的url
         foreach ($this->urls as $url) {
             $url_list[] = $url['link'];
         }
@@ -96,6 +96,8 @@ class TargetSite implements ShouldQueue
         if ($data) {
             return false;
         }
+        $snapshot_date = $this->getSnapshotDate($link);
+
         $url = new Url();
         $url->host_id = $this->hostId;
         $url->url = $link;
@@ -104,9 +106,24 @@ class TargetSite implements ShouldQueue
         $url->title = $site_data['title'] ?? "";
         $url->description = $site_data['description'] ?? "";
         $url->rank = self::DEFAULT_RANK;
+        $url->snapshot_date = $snapshot_date ?? "";
         $url->save();
 
         return true;
+
+    }
+
+
+    protected function getSnapshotDate($url)
+    {
+        $snapshot_date = '';
+        foreach ($this->urls as $sub_url) {
+            if ($url == $sub_url['link']) {
+                $snapshot_date = $sub_url['snapshot_date'];
+            }
+        }
+
+        return $snapshot_date;
 
     }
 
