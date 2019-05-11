@@ -45,8 +45,8 @@ class Url extends Model
      */
     public function getRankAttribute()
     {
-
-        $hostRank = HostRank::where('host_id', $this->host_id)->where('url', $this->url)->first();
+        $first_keyword = $this->first_keyword;
+        $hostRank = HostRank::where('host_id', $this->host_id)->where('url', $this->url)->where('keyword',$first_keyword)->first();
         if ($hostRank) {
 
             $this->rank = $hostRank->rank;
