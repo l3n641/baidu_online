@@ -40,22 +40,6 @@ class Url extends Model
         return $keywords[0];
     }
 
-    /**如果url被百度首页收录就展示他的排名 否则就为100;
-     * @return int
-     */
-    public function getRankAttribute()
-    {
-
-        $hostRank = HostRank::where('host_id', $this->host_id)->where('url', $this->url)->first();
-        if ($hostRank) {
-
-            $this->rank = $hostRank->rank;
-            $this->save();
-            return $hostRank->rank;
-        }
-        return 100;
-
-    }
 
 
 }
