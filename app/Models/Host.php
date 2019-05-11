@@ -45,4 +45,9 @@ class Host extends Model
         return $zt;
     }
 
+    public function getUpdateAmountAttribute()
+    {
+        return Url::where('host_id', $this->host_id)->where('rank', '!=', 100)->count() ?? 0;
+    }
+
 }
