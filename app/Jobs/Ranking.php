@@ -13,6 +13,7 @@ use App\Services\Spider;
 use App\Models\HostRank;
 use App\Models\Host;
 use App\Models\KeyRank;
+use App\Models\Url;
 
 /**
  * Class Ranking 关键词排名
@@ -45,6 +46,7 @@ class Ranking implements ShouldQueue
 
         $urls = $this->getUrlsByKeyword($this->keyword);
         $this->rank($this->hostId, $urls, $this->keyword);
+        $this->updateUrlRank($this->hostId);
     }
 
 
@@ -158,6 +160,25 @@ class Ranking implements ShouldQueue
         $keyRank->rank_amount = $rankAmount;
         $keyRank->rank_list = $rankList;
         $keyRank->save();
+
+    }
+
+    /**更新指定url
+     * @param $host_id
+     * @return int
+     */
+    protected function updateUrlRank($host_id)
+    {
+        $urls = Url::where('host_id', $host_id)->get();
+        foreach ($urls as $url) {
+            $first_keyword = $url->first_keyword;
+            $hostRank = HostRank::where('host_id', $url->host_id)->where('url', $url->url)->where('keyword', $first_keyword)->first();
+            if ($hostRank) {
+
+                $url->rank = $hostRank->rank;
+                $url->save();
+            }
+        }
 
     }
 
