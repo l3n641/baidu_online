@@ -11,7 +11,6 @@ namespace App\Services;
 
 use  GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use Mockery\Exception;
 use QL\QueryList;
 
 
@@ -33,9 +32,25 @@ class BaiduContent
     }
 
 
+    /**获取百度收录页面的url链接
+     * @param bool $realURL 如果为true 返回真实地址
+     * @param bool $snapshotDate 如果为true就返回收录时间
+     * @return mixed 收录的urls 数组
+     */
     public function getUrls($realURL = false, $snapshotDate = false)
     {
-        return $this->content->query()->getData(function ($item) use ($realURL, $snapshotDate) {
+        $rules = [
+            'link' => ['h3>a', 'href'],
+            'snapshot' => ['a.m', 'href'],
+            'c-tools' => ['.c-tools', 'data-tools']
+        ];
+        $range = '#content_left .c-container ';
+        return $this->content->rules($rules)->range($range)->query()->getData(function ($item) use ($realURL, $snapshotDate) {
+
+            if (empty($item['link'])) {
+                $info = $this->parseCTools($item['c-tools']);
+                $item['link'] = $info['url'] ?? '';
+            }
             $realURL && $item['link'] = $this->getRealURL($item['link']);
             $snapshotDate && $item['snapshot_date'] = $this->getSnapshotDate($item['snapshot']);
             return $item;
@@ -48,14 +63,20 @@ class BaiduContent
      */
     protected function getSnapshotDate($url)
     {
+        if (empty($url)) {
+            return '';
+        }
+
         try {
             $client = new Client();
             $response = $client->get($url, ['allow_redirects' => false]);
+            if ($response->getStatusCode() == 302) {
+                return '';
+            }
             if ($response->getStatusCode() == 200) {
-                $html = $response->getBody();
-                $datas = QueryList::html($html)->find('#bd_snap_txt span')->eq(0)->texts();
-                $data = $datas->first();
-                if ($data && preg_match('|\d+年\d+月\d+日|', $data, $matches)) {
+                $html = $response->getBody()->getContents();
+                $html = mb_convert_encoding($html, 'utf-8', 'gb2312,utf-8');
+                if ($html && preg_match('|\d+年\d+月\d+日|', $html, $matches)) {
                     return $matches[0];
                 } else {
                     return '';
@@ -70,8 +91,16 @@ class BaiduContent
     }
 
 
+    /**解密百度链接
+     * @param $url
+     * @return mixed
+     */
     protected function getRealURL($url)
     {
+        if (empty($url)) {
+            return $url;
+        }
+
         $client = new Client();
         $response = $client->head($url, ['allow_redirects' => false]);
         $locations = $response->getHeader('Location');
@@ -88,6 +117,9 @@ class BaiduContent
         return $info[0];
     }
 
+    /**判断当前页面是否还有下一页,如果有就返回下一页页码
+     * @return bool|int
+     */
     public function hasNextPage()
     {
         $nextPage = $this->content->find('#page>a:last[class="n"]')->text();
@@ -96,5 +128,21 @@ class BaiduContent
         }
         return $this->currentPage + 1;
 
+    }
+
+    /**解析ctools 节点
+     * @param $value
+     * @return array
+     */
+    protected function parseCTools($value)
+    {
+        $value = str_replace(['{', '}', '"', "'"], '', $value);
+        $datas = explode(',', $value);
+        $info = [];
+        foreach ($datas as $data) {
+            list($key, $v) = explode(':', $data, 2);
+            $info[$key] = $v;
+        }
+        return $info;
     }
 }
