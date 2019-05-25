@@ -45,16 +45,33 @@ class BaiduContent
             'c-tools' => ['.c-tools', 'data-tools']
         ];
         $range = '#content_left .c-container ';
-        return $this->content->rules($rules)->range($range)->query()->getData(function ($item) use ($realURL, $snapshotDate) {
+
+        $urls = $this->content->rules($rules)->range($range)->query()->getData(function ($item) use ($realURL, $snapshotDate) {
+
+            if (empty($item['link']) && empty($item['c-tools'])) {
+                return null;
+            }
 
             if (empty($item['link'])) {
-                $info = $this->parseCTools($item['c-tools']);
-                $item['link'] = $info['url'] ?? '';
+                $info = $this->parseCTools($item['c-tools']);;
+                if (is_array($info) && array_key_exists('url', $info)) {
+                    $item['link'] = $info['url'];
+                } else {
+                    return null;
+                }
+
             }
+
             $realURL && $item['link'] = $this->getRealURL($item['link']);
             $snapshotDate && $item['snapshot_date'] = $this->getSnapshotDate($item['snapshot']);
             return $item;
         });
+
+        //过滤空的数据
+        $datas = $urls->reject(function ($name) {
+            return empty($name);
+        });
+        return $datas;
     }
 
     /**获取快照时间
