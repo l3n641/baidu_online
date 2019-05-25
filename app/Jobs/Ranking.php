@@ -57,11 +57,17 @@ class Ranking implements ShouldQueue
     protected function getUrlsByKeyword($keyword)
     {
         $urls = $this->getKeywordInCache($keyword);
+        $urls_collection = collect();
         if (empty($urls)) {
+            $end_page = env('BAIDU_RANK_END_PAGE', 1);
             $spider = new Spider($keyword);
-            $content = $spider->getContent(self::FIRST_PAGE);
-            $urls = $content->getUrls(true);
-            $this->cacheKeyword($keyword, $urls);
+            for ($page = 1; $page <= $end_page; $page++) {
+                $content = $spider->getContent($page);
+                $urls = $content->getUrls(true);
+                $urls_collection = $urls_collection->merge($urls);
+            }
+
+            $this->cacheKeyword($keyword, $urls_collection);
         }
 
         return $urls;

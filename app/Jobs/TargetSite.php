@@ -76,6 +76,8 @@ class TargetSite implements ShouldQueue
 
             $responseInfo = $response['info'];
             $status = $this->saveUrl($responseInfo['url'], $responseInfo['http_code'], $data);
+
+            //查询第一个关键词
             if ($status && $responseInfo['http_code'] == 200 && !empty($data['keyword'])) {
                 $firstKeyword = $this->getFirstKeyword($data['keyword']);
                 Ranking::dispatch($firstKeyword, $this->hostId);
