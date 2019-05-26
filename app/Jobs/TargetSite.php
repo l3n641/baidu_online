@@ -161,6 +161,8 @@ class TargetSite implements ShouldQueue
             'maxThread' => 10,// 最大并发数，这个值可以运行中动态改变。
             'maxTry' => 3,   // 触发curl错误或用户错误之前最大重试次数，超过次数$error指定的回调会被调用。
             'opt' => [
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 2,
                 CURLOPT_TIMEOUT => 10,
                 CURLOPT_CONNECTTIMEOUT => 1,
                 CURLOPT_RETURNTRANSFER => true
