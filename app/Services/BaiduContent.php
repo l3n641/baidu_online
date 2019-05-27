@@ -48,13 +48,14 @@ class BaiduContent
 
         $urls = $this->content->rules($rules)->range($range)->query()->getData(function ($item) use ($realURL, $snapshotDate) {
 
-            if (empty($item['link']) && empty($item['c-tools'])) {
+            $link = filter_var($item['link'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED);
+            if ($link && empty($item['c-tools'])) {
                 return null;
             }
 
-            if (empty($item['link'])) {
+            if ($link) {
                 $info = $this->parseCTools($item['c-tools']);;
-                if (is_array($info) && array_key_exists('url', $info)) {
+                if (is_array($info) && array_key_exists('url', $info) && filter_var($info['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
                     $item['link'] = $info['url'];
                 } else {
                     return null;
