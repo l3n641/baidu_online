@@ -36,7 +36,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['myapplog', 'daily'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
 
