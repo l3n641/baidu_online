@@ -48,14 +48,11 @@ class BaiduContent
 
         $urls = $this->content->rules($rules)->range($range)->query()->getData(function ($item) use ($realURL, $snapshotDate) {
 
-            $link = filter_var($item['link'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED);
-            if ($link && empty($item['c-tools'])) {
-                return null;
-            }
+            $is_validate_url = $this->is_validate_url($item['link']);
 
-            if ($link) {
+            if (!$is_validate_url) {
                 $info = $this->parseCTools($item['c-tools']);;
-                if (is_array($info) && array_key_exists('url', $info) && filter_var($info['url'], FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
+                if (is_array($info) && array_key_exists('url', $info) && $this->is_validate_url($info['url'])) {
                     $item['link'] = $info['url'];
                 } else {
                     return null;
@@ -129,12 +126,6 @@ class BaiduContent
     }
 
 
-    protected function getTargetHost($target_url)
-    {
-        $info = explode('/', $target_url);
-        return $info[0];
-    }
-
     /**判断当前页面是否还有下一页,如果有就返回下一页页码
      * @return bool|int
      */
@@ -166,6 +157,16 @@ class BaiduContent
         } catch (\Exception $e) {
             return $info;
         }
+
+    }
+
+    /**判断url 是否有效 ,有效返回url 否则为false
+     * @param $url
+     * @return mixed
+     */
+    protected function is_validate_url($url)
+    {
+        return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED);
 
     }
 }
