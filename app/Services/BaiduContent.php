@@ -154,13 +154,18 @@ class BaiduContent
      */
     protected function parseCTools($value)
     {
-        $value = str_replace(['{', '}', '"', "'"], '', $value);
-        $datas = explode(',', $value);
         $info = [];
-        foreach ($datas as $data) {
-            list($key, $v) = explode(':', $data, 2);
-            $info[$key] = $v;
+        try {
+            $value = str_replace(['{', '}', '"', "'"], '', $value);
+            $datas = explode(',', $value);
+            foreach ($datas as $data) {
+                list($key, $v) = explode(':', $data, 2);
+                $info[$key] = $v;
+            }
+            return $info;
+        } catch (\Exception $e) {
+            return $info;
         }
-        return $info;
+
     }
 }
