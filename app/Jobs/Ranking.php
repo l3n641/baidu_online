@@ -60,11 +60,13 @@ class Ranking implements ShouldQueue
         $urls_collection = collect();
         if (empty($urls)) {
             $end_page = env('BAIDU_RANK_END_PAGE', 1);
+            $sleep_time = env('BAIDU_RANK_SLEEP_TIME ', 1);
             $spider = new Spider($keyword);
             for ($page = 1; $page <= $end_page; $page++) {
                 $content = $spider->getContent($page);
                 $urls = $content->getUrls(true);
                 $urls_collection = $urls_collection->merge($urls);
+                sleep($sleep_time);
             }
 
             $this->cacheKeyword($keyword, $urls_collection);
