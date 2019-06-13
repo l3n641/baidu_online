@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
-use function GuzzleHttp\Psr7\str;
+use App\Services\HostRankService;
+use App\Services\KeyRankService;
+use App\Services\UrlService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,7 +14,6 @@ use Illuminate\Support\Facades\Redis;
 use App\Services\Spider;
 use App\Models\HostRank;
 use App\Models\Host;
-use App\Models\KeyRank;
 use App\Models\Url;
 
 /**
@@ -23,7 +24,6 @@ class Ranking implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $keyword, $hostId;
-    const FIRST_PAGE = 1;
 
     /**
      * Create a new job instance.
@@ -116,60 +116,23 @@ class Ranking implements ShouldQueue
         $rank = 0;
         $rankAmount = 0;
         $rankList = [];
+        $hostRankSrv = new HostRankService();
+        $keyRankSrv = new KeyRankService();
         foreach ($urls as $url) {
             $rank++;
             if (strpos($url['link'], $host->host)) {
                 $rankAmount++;
-                $this->save($url, $rank, $keyword);
+                $hostRankSrv->save($url, $rank, $keyword, $this->hostId);
                 $rankList[] = $rank;
             }
         }
 
         if (!empty($rankList)) {
-            $this->saveKeyRank($rankAmount, $rankList);
+            $keyRankSrv->saveKeyRank($rankAmount, $rankList, $this->hostId, $this->keyword);
         }
 
     }
 
-    /**保存数据到host_rank表
-     * @param $url
-     * @param $rank
-     * @param $keyword
-     * @return bool
-     */
-    protected function save($url, $rank, $keyword)
-    {
-        $data = HostRank::where('url', $url['link'])->where('host_id', $this->hostId)->where('keyword', $keyword)->first();
-        if ($data) {
-            return false;
-        }
-        $hostRank = new HostRank();
-        $hostRank->url = $url['link'];
-        $hostRank->host_id = $this->hostId;
-        $hostRank->rank = $rank;
-        $hostRank->keyword = $keyword;
-        $hostRank->save();
-    }
-
-    /**保存数据到key_rank 表
-     * @param $rankAmount int 统计上百度首页的次数
-     * @param $rankList array 排名列表
-     */
-    protected function saveKeyRank($rankAmount, $rankList)
-    {
-        $data = KeyRank::where('host_id', $this->hostId)->where('keyword', $this->keyword)->first();
-        if ($data) {
-            return false;
-        }
-        $rankList = json_encode($rankList);
-        $keyRank = new KeyRank();
-        $keyRank->host_id = $this->hostId;
-        $keyRank->keyword = $this->keyword;
-        $keyRank->rank_amount = $rankAmount;
-        $keyRank->rank_list = $rankList;
-        $keyRank->save();
-
-    }
 
     /**更新指定url
      * @param $host_id
@@ -177,16 +140,8 @@ class Ranking implements ShouldQueue
      */
     protected function updateUrlRank($host_id)
     {
-        $urls = Url::where('host_id', $host_id)->get();
-        foreach ($urls as $url) {
-            $first_keyword = $url->first_keyword;
-            $hostRank = HostRank::where('host_id', $url->host_id)->where('url', $url->url)->where('keyword', $first_keyword)->first();
-            if ($hostRank) {
-
-                $url->rank = $hostRank->rank;
-                $url->save();
-            }
-        }
+        $urlSrv = new UrlService();
+        $urlSrv->updateUrlRank($host_id);
 
     }
 
