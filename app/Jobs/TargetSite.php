@@ -77,10 +77,13 @@ class TargetSite implements ShouldQueue
             $responseInfo = $response['info'];
             $status = $this->saveUrl($responseInfo['url'], $responseInfo['http_code'], $data);
 
-            //查询第一个关键词
+            //查询所有关键词
             if ($status && $responseInfo['http_code'] == 200 && !empty($data['keyword'])) {
-                $firstKeyword = $this->getFirstKeyword($data['keyword']);
-                Ranking::dispatch($firstKeyword, $this->hostId);
+                $keywords = $this->getKeywordList($data['keyword']);
+                foreach ($keywords as $keyword) {
+                    Ranking::dispatch($keyword, $this->hostId);
+
+                }
             }
 
             // 释放资源
@@ -143,13 +146,22 @@ class TargetSite implements ShouldQueue
      */
     protected function getFirstKeyword($keyword)
     {
+
+        $keywords = $this->getKeywordList($keyword);
+        return $keywords[0];
+    }
+
+
+    protected function getKeywordList($keyword)
+    {
         $keyword = trim($keyword);
         $delimiter = " ";
         if (strpos($keyword, ',') !== false) {
             $delimiter = ',';
         }
         $keywords = explode($delimiter, $keyword);
-        return $keywords[0];
+
+        return $keywords;
     }
 
     /**获取curl配置
